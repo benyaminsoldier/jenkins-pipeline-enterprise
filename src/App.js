@@ -11,6 +11,7 @@ function App() {
         </p>
         <p>Daniel Benjumea V</p>
         <p>Christine Ritchie</p>
+        <p>Adam Workie</p>
         <a
           className="App-link"
           href="https://reactjs.org"
