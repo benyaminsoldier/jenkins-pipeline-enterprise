@@ -1,6 +1,12 @@
 pipeline {
     agent any
 
+        environment{
+        AWS_DEFAULT_REGION = 'us-east-2'
+        AWS_DOCKER_REGISTRY = '311141540042.dkr.ecr.us-west-2.amazonaws.com'
+        APP_NAME = 'project-image'
+    }
+
     stages {
         stage('Build') {
             agent{
@@ -37,32 +43,49 @@ pipeline {
             }
         }
 
-        stage('Deploy'){
-            agent{
-                docker{
+
+        stage('Build My Docker Image'){
+            agent {
+                docker {
                     image 'amazon/aws-cli'
                     reuseNode true
-                    args '--entrypoint=""'
+                    args '-u root -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=""'
                 }
             }
-
-            environment{
-                //AWS_S3_BUCKET = 'demo250403'
-            }
-
-             steps {
-                withCredentials([usernamePassword(credentialsId: 'demo-credentials', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
+            steps{
+                 withCredentials([usernamePassword(credentialsId: 'demo-credentials', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) 
+                { 
                     sh '''
-                            aws --version
-                            aws s3 ls
-                            aws s3 sync build s3://$AWS_S3_BUCKET
-
-                            # echo "hello S3!" > index.html
-                            # aws s3 cp index.html s3://demo250403/index.html
-
-                        '''
+                        amazon-linux-extras install docker
+                        docker build -t $AWS_DOCKER_REGISTRY/$APP_NAME .
+                        aws ecr get-login-password | docker login --username AWS --password-stdin $AWS_DOCKER_REGISTRY
+                        docker push $AWS_DOCKER_REGISTRY/$APP_NAME:latest
+                    '''
                 }
             }
         }
+
+        // stage('Deploy to AWS') {
+        //     agent {
+        //         docker {
+        //             image 'amazon/aws-cli'
+        //             reuseNode true
+        //             args '-u root --entrypoint=""'
+        //         }
+        //     }
+            
+        //     steps {
+        //         withCredentials([usernamePassword(credentialsId: 'demo-credentials', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) 
+        //         {   
+        //             sh '''
+        //                 aws --version
+        //                 yum install jq -y
+                        
+        //                 LATEST_TD_REVISION=$(aws ecs register-task-definition --cli-input-json file://aws/task-definition.json | jq '.taskDefinition.revision')
+        //                 aws ecs update-service --cluster my-new-Cluster-Prod --service my-new-Service-Prod --task-definition my-new-TaskDefinition-Prod:$LATEST_TD_REVISION
+        //             '''
+        //         }
+        //     }
+        // }
     }  
 }
