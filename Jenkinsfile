@@ -4,7 +4,7 @@ pipeline {
         environment{
         AWS_DEFAULT_REGION = 'us-west-2'
         AWS_DOCKER_REGISTRY = '311141540042.dkr.ecr.us-west-2.amazonaws.com'
-        APP_NAME = 'project-image'
+        APP_NAME = 'project_image'
 
     }
 
