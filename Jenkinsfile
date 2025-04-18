@@ -53,7 +53,7 @@ pipeline {
                 }
             }
             steps{
-                 withCredentials([usernamePassword(credentialsId: 'demo-credentials', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) 
+                 withCredentials([usernamePassword(credentialsId: 'project-user', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) 
                 { 
                     sh '''
                         amazon-linux-extras install docker
