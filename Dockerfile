@@ -1,4 +1,8 @@
-FROM nginx:1.27-alpine
+FROM amazon/aws-cli
 
-COPY build /usr/share/nginx/html
+USER root
+RUN yum install -y docker jq
+
+ENTRYPOINT [""]
+
  
